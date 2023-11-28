@@ -1,0 +1,163 @@
+---
+title: "Slot Machine"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Integrantes
+
++--------------------------------+---------------+
+| Nombre                         | Código        |
++================================+===============+
+| Marbin Javier Arévalo Guerrero | 2210053       |
++--------------------------------+---------------+
+| Diego Alejandro Gomez          | 2211060       |
++--------------------------------+---------------+
+
+## Creación del simulador
+
+### Paquetes necesarios
+
+```{r}
+install.packages("ggplot2")
+```
+
+Para la creación del simulador usarémos cómo guía el proyecto [Slot Machine](https://rstudio-education.github.io/hopr/project-3-slot-machine.html) proporcionado en la clase *Estadística 1.*
+
+Primeramente se crea una función para obtener los símbolos que usaremos en nuestra simulación, en este caso será de 1 línea de juego, *n* carriles y 9 símbolos representados de la siguiente manera para un ejemplo de 3 carrilles:
+
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| Símbolo                                                                            | Representación | Premio en dólares     | Peso/Probabilidad |
++:==================================================================================:+================+=======================+===================+
+| ![Cereza](Imagenes/Captura%20de%20pantalla%202023-11-26%20213156.png){width="147"} | "CZ"           | CZ + (\*) + (\*) = 2  | $$                |
+|                                                                                    |                |                       | \frac{1}{9}$$     |
+|                                                                                    |                | CZ + CZ + (\*) = 3    |                   |
+|                                                                                    |                |                       |                   |
+|                                                                                    |                | CZ + CZ + CZ = 5      |                   |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| ![Limón](Imagenes/limon.png){width="145"}                                          | "L"            | L + L + L = 10        | $$ \frac{1}{9}$$  |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| ![Uva](Imagenes/Captura%20de%20pantalla%202023-11-26%20214040.png){width="144"}    | "U"            | U + U + U = 15        | $$ \frac{1}{9}$$  |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| ![Naranja](Imagenes/naranja.png){width="156"}                                      | "N"            | N + N + N = 20        | $$ \frac{1}{9}$$  |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| ![Sandía](Imagenes/sandía.png){width="148"}                                        | "S"            | S + S + S = 25        | $$ \frac{1}{9}$$  |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| ![Banana](Imagenes/banana.png){width="154"}                                        | "BN"           | B + B + B = 30        | $$ \frac{1}{9}$$  |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| ![Campana](Imagenes/campana.png){width="149"}                                      | "CP"           | CP + CP + CP =40      | $$ \frac{1}{9}$$  |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| ![7](Imagenes/7.png){width="153"}                                                  | "SVN"          | SVN + SVN + SVN = 60  | $$ \frac{1}{9}$$  |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+| ![BAR](Imagenes/bar.png){width="155"}                                              | "BAR"          | BAR + BAR + BAR = 100 | $$ \frac{1}{9}$$  |
++------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
+
+Primero supongamos el caso en el que en todos los carrilles los símbolos son equiprobables en una maquína analógica esto se ve representado por caras de igual peso, sin embargo, más adelante veremos cómo ajustar la máqina de una manera más detallada debido a que ya no son necesarias las caras físicas.
+
+Ahora, necesitamos una funcion que nos permita obtener los posibles resultados de la SM (Slot Machine):
+
+```{r}
+get_symbols_equi_p <- function(n_carril) {
+  wheel <- c("CZ","L","U", "N", "S", "B", "CP", "SVN", "BAR")
+  sample(wheel, size = n_carril, replace = TRUE, 
+    prob = c(1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9))
+}
+```
+
+```{r}
+get_symbols_equi_p(3)
+```
+
+```{r}
+get_symbols_equi_p(3)
+```
+
+```{r}
+get_symbols_equi_p(5)
+```
+
+En el caso de los premios crearemos una función que tenga en cuenta todos los posibles resultados, para facilitar la codificación solo tomaremos los casos para esta prueba sin tener en cuenta la escalabilidad a *m* símbolos.
+
+```{r}
+prize <- function(entrada){
+  resultado = table(entrada)
+  maximo = max(as.vector(resultado))
+  
+  if ((maximo == length(entrada)) || (maximo > length(entrada)/2 && maximo > 2)){
+    switch (names(resultado[match(maximo, resultado)]),
+      "L" = return(round(as.vector(resultado["L"])*(10/length(entrada)), digits = 0             )), 
+      "U" = return(round(as.vector(resultado["U"])*(15/length(entrada)), digits = 0             )),
+      "N" = return(round(as.vector(resultado["N"])*(20/length(entrada)), digits = 0             )),
+      "S" = return(round(as.vector(resultado["S"])*(25/length(entrada)), digits = 0             )),
+      "BN" = return(round(as.vector(resultado["BN"])*(30/length(entrada)), digits =              0)),
+      "CP" = return(round(as.vector(resultado["CP"])*(40/length(entrada)), digits =              0)),
+      "SVN" = return(round(as.vector(resultado["SVN"])*(60/length(entrada)), digits             = 0)),
+      "BAR" = return(round(as.vector(resultado["BAR"])*(100/length(entrada)),                    digits = 0))
+      )
+  }else if(!is.na(resultado["CZ"])){
+    return(round(as.vector(resultado["CZ"])*(5/length(entrada)), digits = 0))
+  }else{
+    return(0)
+  }
+}
+```
+
+Una vez definidas estas funciones podemos crear una función play donde nos permita indicar cuantas jugadas y en qué tipo de máquina deseamos simularlas haciendo uso de *get_symbols_equi_p* y *prize*:
+
+```{r}
+play_equi_p <- function(rolls, n_carril){
+  result=c()
+  for (i in 1:rolls) {
+    result = append(result,prize(get_symbols_equi_p(n_carril)))
+  }
+  return(result)
+}
+```
+
+```{r}
+r = 10
+c = 3
+jugadas = play_equi_p(rolls = r,n_carril = c)
+jugadas
+ganancias = sum(jugadas)
+print(ganancias)
+gastos = 5*r
+print(gastos)
+total = ganancias-gastos
+print(total)
+```
+
+Prueba de 10.000 intentos para ver el expected value de las ganancias de cada jugador
+
+```{r}
+library(ggplot2)
+graficar_experimento <- function(results, title1 = "Average Value Simulation") {
+  # Calcula la suma acumulada de los resultados
+  Sn = cumsum(results)
+  
+  # Crea un data frame con los resultados
+  simu = data.frame(n = 1:length(results), Sn = Sn)
+  
+  # Valor esperado
+  expected_value = 3.5
+  
+  # Grafica principal
+  p1 <- ggplot(data = simu, aes(x = n, y = Sn/n)) +
+    geom_line() +
+    geom_abline(intercept = expected_value, slope = 0, color = "red", size = 0.5) +
+    ylab("Average Value (Sn/n)") +
+    ggtitle(title1)
+  
+  # Devolver la lista de gr?ficos
+  return(list(p1))
+}
+
+
+jugadas = play_equi_p(rolls = 10000,n_carril = 3)
+
+
+graficar_experimento(jugadas)
+```
+
+\
