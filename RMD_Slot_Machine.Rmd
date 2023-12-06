@@ -20,6 +20,12 @@ lang: es
 
 # Introducción
 
+En el marco de este proyecto, se llevará a cabo el desarrollo de una máquina tragamonedas con el objetivo de realizar un profundo análisis del valor esperado (expected value). El enfoque central será determinar cuál de las configuraciones de la máquina resulta más conveniente para el casino. Además, se explorará el impacto de variar el número de carriles y la probabilidad asociada a cada símbolo en la frecuencia de los resultados.
+
+El expected value se presenta como una medida crucial en la evaluación del rendimiento de la máquina, ya que representa la ganancia o pérdida esperada para el jugador en cada jugada. Un resultado negativo indicaría una pérdida para el jugador, reflejando, en cambio, una ganancia esperada para el casino.
+
+A lo largo de este proyecto, se realizarán ajustes en las variables clave, como el número de carriles y las probabilidades de ocurrencia de los símbolos, con el fin de observar cómo estas variaciones afectan al valor esperado. El análisis resultante proporcionará una visión detallada sobre qué configuraciones son más favorables para el casino desde el punto de vista económico.
+
 # Metodología
 
 ## Creación del simulador
@@ -185,7 +191,7 @@ graficar_experimento <- function(results, title1 = "Average Value: Slot Machine"
 
 Prueba de 100.000 intentos para ver el expected value de las ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con simbolos equiprobables:
 
-```{r eval=FALSE, include=FALSE}
+```{r eval=FALSE}
 r = 100000
 jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = equiprobables)
 graficar_experimento(jugadas_3)
@@ -201,7 +207,7 @@ graficar_experimento(jugadas_7)
 
 Prueba de 100.000 intentos para ver el expected value de las ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con simbolos no equiprobables:
 
-```{r eval=FALSE, include=FALSE}
+```{r eval=FALSE}
 r = 100000
 jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = no_equiprobables_1)
 graficar_experimento(jugadas_3)
@@ -217,7 +223,7 @@ graficar_experimento(jugadas_7)
 
 Prueba de 100.000 intentos para ver el expected value de las ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con otro ajuste de simbolos no equiprobables:
 
-```{r eval=FALSE, include=FALSE}
+```{r eval=FALSE}
 r = 100000 
 jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = no_equiprobables_2)
 graficar_experimento(jugadas_3)

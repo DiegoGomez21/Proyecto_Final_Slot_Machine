@@ -2781,6 +2781,24 @@ tragamonedas en R</h1>
 </div>
 <div id="introducción" class="section level1">
 <h1>Introducción</h1>
+<p>En el marco de este proyecto, se llevará a cabo el desarrollo de una
+máquina tragamonedas con el objetivo de realizar un profundo análisis
+del valor esperado (expected value). El enfoque central será determinar
+cuál de las configuraciones de la máquina resulta más conveniente para
+el casino. Además, se explorará el impacto de variar el número de
+carriles y la probabilidad asociada a cada símbolo en la frecuencia de
+los resultados.</p>
+<p>El expected value se presenta como una medida crucial en la
+evaluación del rendimiento de la máquina, ya que representa la ganancia
+o pérdida esperada para el jugador en cada jugada. Un resultado negativo
+indicaría una pérdida para el jugador, reflejando, en cambio, una
+ganancia esperada para el casino.</p>
+<p>A lo largo de este proyecto, se realizarán ajustes en las variables
+clave, como el número de carriles y las probabilidades de ocurrencia de
+los símbolos, con el fin de observar cómo estas variaciones afectan al
+valor esperado. El análisis resultante proporcionará una visión
+detallada sobre qué configuraciones son más favorables para el casino
+desde el punto de vista económico.</p>
 </div>
 <div id="metodología" class="section level1">
 <h1>Metodología</h1>
@@ -2920,9 +2938,9 @@ resultados de la SM (Slot Machine):</p>
   sample(wheel, size = n_carril, replace = TRUE, 
     prob = prob)
 }</code></pre>
-<pre><code>## [1] &quot;BAR&quot; &quot;SVN&quot; &quot;CP&quot;</code></pre>
-<pre><code>## [1] &quot;SVN&quot; &quot;S&quot;   &quot;U&quot;</code></pre>
-<pre><code>## [1] &quot;S&quot; &quot;B&quot; &quot;L&quot;</code></pre>
+<pre><code>## [1] &quot;CZ&quot;  &quot;BAR&quot; &quot;L&quot;</code></pre>
+<pre><code>## [1] &quot;CP&quot;  &quot;SVN&quot; &quot;L&quot;</code></pre>
+<pre><code>## [1] &quot;SVN&quot; &quot;B&quot;   &quot;BAR&quot;</code></pre>
 </div>
 <div id="cálculo-de-los-premios" class="section level3">
 <h3>Cálculo de los premios</h3>
@@ -2951,16 +2969,16 @@ c = 3
 coste = 5
 jugadas = play(rolls = r,n_carril = c, costo_tiro = coste, prob = equiprobables)
 print(jugadas)</code></pre>
-<pre><code>##  [1] -5 -5 -5 -3 -5 -3 -5 -3 -3 -5</code></pre>
+<pre><code>##  [1] -5 -5 -3 -2 -5 -5 -3 -5 -5 -3</code></pre>
 <pre class="r"><code>gastos = coste*r
 ganancias = sum(jugadas) + gastos
 print(ganancias)</code></pre>
-<pre><code>## [1] 8</code></pre>
+<pre><code>## [1] 9</code></pre>
 <pre class="r"><code>print(gastos)</code></pre>
 <pre><code>## [1] 50</code></pre>
 <pre class="r"><code>total = ganancias-gastos
 print(total)</code></pre>
-<pre><code>## [1] -42</code></pre>
+<pre><code>## [1] -41</code></pre>
 <div id="cálculo-del-expected-value" class="section level3">
 <h3>Cálculo del expected value</h3>
 <p>Finalmente, definidos nuestros experimentos y cómo obtener resultados
@@ -2994,18 +3012,45 @@ esperado de manera aproximada mediante una función llamada
 <p>Prueba de 100.000 intentos para ver el expected value de las
 ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con
 simbolos equiprobables:</p>
+<pre class="r"><code>r = 100000
+jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = equiprobables)
+graficar_experimento(jugadas_3)
+
+jugadas_5 = play(rolls = r,n_carril = 5, costo_tiro = 5, prob = equiprobables)
+graficar_experimento(jugadas_5)
+
+jugadas_7 = play(rolls = r,n_carril = 7, costo_tiro = 5, prob = equiprobables)
+graficar_experimento(jugadas_7)</code></pre>
 </div>
 <div id="símbolos-no-equiprobables" class="section level2">
 <h2>Símbolos no equiprobables</h2>
 <p>Prueba de 100.000 intentos para ver el expected value de las
 ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con
 simbolos no equiprobables:</p>
+<pre class="r"><code>r = 100000
+jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = no_equiprobables_1)
+graficar_experimento(jugadas_3)
+
+jugadas_5 = play(rolls = r,n_carril = 5, costo_tiro = 5, prob = no_equiprobables_1)
+graficar_experimento(jugadas_5)
+
+jugadas_7 = play(rolls = r,n_carril = 7, costo_tiro = 5, prob = no_equiprobables_1)
+graficar_experimento(jugadas_7)</code></pre>
 </div>
 <div id="otros-símbolos-no-equiprobables" class="section level2">
 <h2>Otros símbolos no equiprobables</h2>
 <p>Prueba de 100.000 intentos para ver el expected value de las
 ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con otro
 ajuste de simbolos no equiprobables:</p>
+<pre class="r"><code>r = 100000 
+jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = no_equiprobables_2)
+graficar_experimento(jugadas_3)
+
+jugadas_5 = play(rolls = r,n_carril = 5, costo_tiro = 5, prob = no_equiprobables_2)
+graficar_experimento(jugadas_5)
+
+jugadas_7 = play(rolls = r,n_carril = 7, costo_tiro = 5, prob = no_equiprobables_2)
+graficar_experimento(jugadas_7)</code></pre>
 </div>
 </div>
 <div id="discusión" class="section level1">
