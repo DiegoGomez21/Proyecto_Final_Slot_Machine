@@ -1,21 +1,22 @@
 ---
-title: "Slot Machine"
+title: "Proyecto Final: Emulador de máquina tragamonedas en R"
 output:
   html_document:
+    toc: true
+    toc_float: true
     df_print: paged
+lang: es
 ---
 
-# Proyecto Final: Emulador de máquina tragamonedas en R
+# Integrantes
 
-## Integrantes
-
-+--------------------------------+--------------+
-| Nombre                         | Código       |
-+================================+==============+
-| Marbin Javier Arévalo Guerrero | 2210053      |
-+--------------------------------+--------------+
-| Diego Alejandro Gomez          | 2211060      |
-+--------------------------------+--------------+
++--------------------------------+---------+
+| Nombre                         | Código  |
++================================+=========+
+| Marbin Javier Arévalo Guerrero | 2210053 |
++--------------------------------+---------+
+| Diego Alejandro Gomez          | 2211060 |
++--------------------------------+---------+
 
 # Introducción
 
@@ -30,6 +31,8 @@ library(ggplot2)
 ```
 
 Para la creación del simulador usarémos cómo guía el proyecto [Slot Machine](https://rstudio-education.github.io/hopr/project-3-slot-machine.html) proporcionado en la clase *Estadística 1.*
+
+### Definición de los símbolos y su probabilidad
 
 Primeramente se crea una función para obtener los símbolos que usaremos en nuestra simulación, en este caso será de 1 línea de juego, *n* carriles y 9 símbolos representados de la siguiente manera para un ejemplo de 3 carrilles:
 
@@ -59,29 +62,42 @@ Primeramente se crea una función para obtener los símbolos que usaremos en nue
 | ![BAR](Imagenes/bar.png){width="155"}                                              | "BAR"          | BAR + BAR + BAR = 100 | $$ \frac{1}{9}$$  |
 +------------------------------------------------------------------------------------+----------------+-----------------------+-------------------+
 
-Primero supongamos el caso en el que en todos los carrilles los símbolos son equiprobables en una maquína analógica esto se ve representado por caras de igual peso, sin embargo, más adelante veremos cómo ajustar la máqina de una manera más detallada debido a que ya no son necesarias las caras físicas.
+Primero supongamos el caso en el que en todos los carrilles los símbolos son equiprobables en una maquína analógica esto se ve representado por caras de igual peso, sin embargo, podemos ajustar la máqina de una manera más detallada debido a que ya no son necesarias las caras físicas.
+
+En el siguiente bloque definimos tanto los símbolos que serán utilizados en cada carril, así como la probabilidad de cada símbolo:
+
+```{r}
+wheel <- c("CZ","L","U", "N", "S", "B", "CP", "SVN", "BAR")
+
+equiprobables <- c(1/9,1/9,1/9,1/9,1/9,1/9,1/9,1/9,1/9)
+no_equiprobables_1 <- c(0.228, 0.196, 0.160, 0.128, 0.105, 0.073, 0.055, 0.037, 0.018)
+no_equiprobables_2 <- c(0.203, 0.107, 0.107, 0.107, 0.107, 0.107, 0.107, 0.084, 0.071)
+```
+
+### Obtención de un resultado de la máquina
 
 Ahora, necesitamos una funcion que nos permita obtener los posibles resultados de la SM (Slot Machine):
 
 ```{r}
-get_symbols_equi_p <- function(n_carril) {
-  wheel <- c("CZ","L","U", "N", "S", "B", "CP", "SVN", "BAR")
+get_symbols<- function(n_carril,prob) {
   sample(wheel, size = n_carril, replace = TRUE, 
-    prob = c(1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9, 1/9))
+    prob = prob)
 }
 ```
 
 ```{r echo=FALSE}
-get_symbols_equi_p(3)
+get_symbols(3,equiprobables)
 ```
 
 ```{r echo=FALSE}
-get_symbols_equi_p(3)
+get_symbols(3,equiprobables)
 ```
 
 ```{r echo=FALSE}
-get_symbols_equi_p(5)
+get_symbols(3,equiprobables)
 ```
+
+### Cálculo de los premios
 
 En el caso de los premios crearemos una función que tenga en cuenta todos los posibles resultados, para facilitar la codificación solo tomaremos los casos para esta prueba sin tener en cuenta la escalabilidad a *m* símbolos.
 
@@ -109,13 +125,15 @@ prize <- function(entrada){
 }
 ```
 
-Una vez definidas estas funciones podemos crear una función play donde nos permita indicar cuantas jugadas y en qué tipo de máquina deseamos simularlas haciendo uso de *get_symbols_equi_p* y *prize*:
+## Simulación de jugadas
+
+Una vez definida la máquina podemos crear una función *play* donde nos permita indicar cuantas jugadas y en qué tipo de máquina deseamos simularlas haciendo uso de *get_symbols_equi_p* y *prize*:
 
 ```{r}
-play_equi_p <- function(rolls, n_carril, costo_tiro){
+play <- function(rolls, n_carril, costo_tiro, prob){
   result=c()
   for (i in 1:rolls) {
-    result = append(result,prize(get_symbols_equi_p(n_carril))-costo_tiro)
+    result = append(result,prize(get_symbols(n_carril,prob))-costo_tiro)
   }
   return(result)
 }
@@ -127,15 +145,17 @@ Ejemplo de una simulación de 10 tiros:
 r = 10
 c = 3
 coste = 5
-jugadas = play_equi_p(rolls = r,n_carril = c, costo_tiro = coste)
+jugadas = play(rolls = r,n_carril = c, costo_tiro = coste, prob = equiprobables)
 print(jugadas)
+gastos = coste*r
 ganancias = sum(jugadas) + gastos
 print(ganancias)
-gastos = coste*r
 print(gastos)
 total = ganancias-gastos
 print(total)
 ```
+
+### Cálculo del expected value
 
 Finalmente, definidos nuestros experimentos y cómo obtener resultados usamos la *Ley de los grandes números* para calcular el valor esperado de manera aproximada mediante una función llamada *graficar_experimento*.
 
@@ -161,16 +181,51 @@ graficar_experimento <- function(results, title1 = "Average Value: Slot Machine"
 
 # Resultados
 
-Prueba de 50.000 intentos para ver el expected value de las ganancias de cada jugador en una máquina equiprobable de 3, 5 y 7 carriles:
+## Símbolos equiprobables
 
-```{r}
-jugadas_3 = play_equi_p(rolls = 100000,n_carril = 3, costo_tiro = 5)
+Prueba de 100.000 intentos para ver el expected value de las ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con simbolos equiprobables:
+
+```{r eval=FALSE, include=FALSE}
+r = 100000
+jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = equiprobables)
 graficar_experimento(jugadas_3)
 
-jugadas_5 = play_equi_p(rolls = 100000,n_carril = 5, costo_tiro = 5)
+jugadas_5 = play(rolls = r,n_carril = 5, costo_tiro = 5, prob = equiprobables)
 graficar_experimento(jugadas_5)
 
-jugadas_7 = play_equi_p(rolls = 100000,n_carril = 7, costo_tiro = 5)
+jugadas_7 = play(rolls = r,n_carril = 7, costo_tiro = 5, prob = equiprobables)
+graficar_experimento(jugadas_7)
+```
+
+## Símbolos no equiprobables
+
+Prueba de 100.000 intentos para ver el expected value de las ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con simbolos no equiprobables:
+
+```{r eval=FALSE, include=FALSE}
+r = 100000
+jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = no_equiprobables_1)
+graficar_experimento(jugadas_3)
+
+jugadas_5 = play(rolls = r,n_carril = 5, costo_tiro = 5, prob = no_equiprobables_1)
+graficar_experimento(jugadas_5)
+
+jugadas_7 = play(rolls = r,n_carril = 7, costo_tiro = 5, prob = no_equiprobables_1)
+graficar_experimento(jugadas_7)
+```
+
+## Otros símbolos no equiprobables
+
+Prueba de 100.000 intentos para ver el expected value de las ganancias de cada jugador en una máquina de 3, 5 y 7 carriles con otro ajuste de simbolos no equiprobables:
+
+```{r eval=FALSE, include=FALSE}
+r = 100000 
+jugadas_3 = play(rolls = r,n_carril = 3, costo_tiro = 5, prob = no_equiprobables_2)
+graficar_experimento(jugadas_3)
+
+jugadas_5 = play(rolls = r,n_carril = 5, costo_tiro = 5, prob = no_equiprobables_2)
+graficar_experimento(jugadas_5)
+
+jugadas_7 = play(rolls = r,n_carril = 7, costo_tiro = 5, prob = no_equiprobables_2)
 graficar_experimento(jugadas_7)
 ```
 
