@@ -5,22 +5,28 @@ output:
     df_print: paged
 ---
 
+# Proyecto Final: Emulador de máquina tragamonedas en R
+
 ## Integrantes
 
-+--------------------------------+---------------+
-| Nombre                         | Código        |
-+================================+===============+
-| Marbin Javier Arévalo Guerrero | 2210053       |
-+--------------------------------+---------------+
-| Diego Alejandro Gomez          | 2211060       |
-+--------------------------------+---------------+
++--------------------------------+--------------+
+| Nombre                         | Código       |
++================================+==============+
+| Marbin Javier Arévalo Guerrero | 2210053      |
++--------------------------------+--------------+
+| Diego Alejandro Gomez          | 2211060      |
++--------------------------------+--------------+
+
+# Introducción
+
+# Metodología
 
 ## Creación del simulador
 
 ### Paquetes necesarios
 
-```{r}
-install.packages("ggplot2")
+```{r include=FALSE}
+library(ggplot2)
 ```
 
 Para la creación del simulador usarémos cómo guía el proyecto [Slot Machine](https://rstudio-education.github.io/hopr/project-3-slot-machine.html) proporcionado en la clase *Estadística 1.*
@@ -65,21 +71,21 @@ get_symbols_equi_p <- function(n_carril) {
 }
 ```
 
-```{r}
+```{r echo=FALSE}
 get_symbols_equi_p(3)
 ```
 
-```{r}
+```{r echo=FALSE}
 get_symbols_equi_p(3)
 ```
 
-```{r}
+```{r echo=FALSE}
 get_symbols_equi_p(5)
 ```
 
 En el caso de los premios crearemos una función que tenga en cuenta todos los posibles resultados, para facilitar la codificación solo tomaremos los casos para esta prueba sin tener en cuenta la escalabilidad a *m* símbolos.
 
-```{r}
+```{r echo=FALSE}
 prize <- function(entrada){
   resultado = table(entrada)
   maximo = max(as.vector(resultado))
@@ -106,58 +112,72 @@ prize <- function(entrada){
 Una vez definidas estas funciones podemos crear una función play donde nos permita indicar cuantas jugadas y en qué tipo de máquina deseamos simularlas haciendo uso de *get_symbols_equi_p* y *prize*:
 
 ```{r}
-play_equi_p <- function(rolls, n_carril){
+play_equi_p <- function(rolls, n_carril, costo_tiro){
   result=c()
   for (i in 1:rolls) {
-    result = append(result,prize(get_symbols_equi_p(n_carril)))
+    result = append(result,prize(get_symbols_equi_p(n_carril))-costo_tiro)
   }
   return(result)
 }
 ```
 
+Ejemplo de una simulación de 10 tiros:
+
 ```{r}
 r = 10
 c = 3
-jugadas = play_equi_p(rolls = r,n_carril = c)
-jugadas
-ganancias = sum(jugadas)
+coste = 5
+jugadas = play_equi_p(rolls = r,n_carril = c, costo_tiro = coste)
+print(jugadas)
+ganancias = sum(jugadas) + gastos
 print(ganancias)
-gastos = 5*r
+gastos = coste*r
 print(gastos)
 total = ganancias-gastos
 print(total)
 ```
 
-Prueba de 10.000 intentos para ver el expected value de las ganancias de cada jugador
+Finalmente, definidos nuestros experimentos y cómo obtener resultados usamos la *Ley de los grandes números* para calcular el valor esperado de manera aproximada mediante una función llamada *graficar_experimento*.
 
 ```{r}
-library(ggplot2)
-graficar_experimento <- function(results, title1 = "Average Value Simulation") {
+graficar_experimento <- function(results, title1 = "Average Value: Slot Machine") {
   # Calcula la suma acumulada de los resultados
   Sn = cumsum(results)
+  e_v = mean(Sn[(length(Sn) - 1000):length(Sn)])/length(Sn)
   
   # Crea un data frame con los resultados
   simu = data.frame(n = 1:length(results), Sn = Sn)
   
-  # Valor esperado
-  expected_value = 3.5
-  
   # Grafica principal
-  p1 <- ggplot(data = simu, aes(x = n, y = Sn/n)) +
+  p1 = ggplot(data = simu, aes(x = n, y = Sn/n)) +
     geom_line() +
-    geom_abline(intercept = expected_value, slope = 0, color = "red", size = 0.5) +
     ylab("Average Value (Sn/n)") +
     ggtitle(title1)
   
   # Devolver la lista de gr?ficos
-  return(list(p1))
+  return(c(e_v, list(p1)))
 }
-
-
-jugadas = play_equi_p(rolls = 10000,n_carril = 3)
-
-
-graficar_experimento(jugadas)
 ```
 
-\
+# Resultados
+
+Prueba de 50.000 intentos para ver el expected value de las ganancias de cada jugador en una máquina equiprobable de 3, 5 y 7 carriles:
+
+```{r}
+jugadas_3 = play_equi_p(rolls = 100000,n_carril = 3, costo_tiro = 5)
+graficar_experimento(jugadas_3)
+
+jugadas_5 = play_equi_p(rolls = 100000,n_carril = 5, costo_tiro = 5)
+graficar_experimento(jugadas_5)
+
+jugadas_7 = play_equi_p(rolls = 100000,n_carril = 7, costo_tiro = 5)
+graficar_experimento(jugadas_7)
+```
+
+# Discusión
+
+# Conclusión
+
+# Rerefencias
+
+-   <https://rstudio-education.github.io/hopr/project-3-slot-machine.html>
