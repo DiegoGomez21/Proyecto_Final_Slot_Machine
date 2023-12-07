@@ -2756,11 +2756,7 @@ tragamonedas en R</h1>
 
 <div id="integrantes" class="section level1">
 <h1>Integrantes</h1>
-<table style="width:60%;">
-<colgroup>
-<col width="45%" />
-<col width="13%" />
-</colgroup>
+<table>
 <thead>
 <tr class="header">
 <th>Nombre</th>
@@ -2938,9 +2934,9 @@ resultados de la SM (Slot Machine):</p>
   sample(wheel, size = n_carril, replace = TRUE, 
     prob = prob)
 }</code></pre>
-<pre><code>## [1] &quot;CZ&quot;  &quot;BAR&quot; &quot;L&quot;</code></pre>
-<pre><code>## [1] &quot;CP&quot;  &quot;SVN&quot; &quot;L&quot;</code></pre>
-<pre><code>## [1] &quot;SVN&quot; &quot;B&quot;   &quot;BAR&quot;</code></pre>
+<pre><code>## [1] &quot;S&quot;   &quot;SVN&quot; &quot;BAR&quot;</code></pre>
+<pre><code>## [1] &quot;B&quot; &quot;U&quot; &quot;L&quot;</code></pre>
+<pre><code>## [1] &quot;N&quot; &quot;S&quot; &quot;L&quot;</code></pre>
 </div>
 <div id="cálculo-de-los-premios" class="section level3">
 <h3>Cálculo de los premios</h3>
@@ -2969,16 +2965,16 @@ c = 3
 coste = 5
 jugadas = play(rolls = r,n_carril = c, costo_tiro = coste, prob = equiprobables)
 print(jugadas)</code></pre>
-<pre><code>##  [1] -5 -5 -3 -2 -5 -5 -3 -5 -5 -3</code></pre>
+<pre><code>##  [1] -5 -3 -5 -5 -3 -5 -5 -5 -5 -5</code></pre>
 <pre class="r"><code>gastos = coste*r
 ganancias = sum(jugadas) + gastos
 print(ganancias)</code></pre>
-<pre><code>## [1] 9</code></pre>
+<pre><code>## [1] 4</code></pre>
 <pre class="r"><code>print(gastos)</code></pre>
 <pre><code>## [1] 50</code></pre>
 <pre class="r"><code>total = ganancias-gastos
 print(total)</code></pre>
-<pre><code>## [1] -41</code></pre>
+<pre><code>## [1] -46</code></pre>
 <div id="cálculo-del-expected-value" class="section level3">
 <h3>Cálculo del expected value</h3>
 <p>Finalmente, definidos nuestros experimentos y cómo obtener resultados
@@ -2995,11 +2991,22 @@ esperado de manera aproximada mediante una función llamada
   
   # Grafica principal
   p1 = ggplot(data = simu, aes(x = n, y = Sn/n)) +
-    geom_line() +
-    ylab(&quot;Average Value (Sn/n)&quot;) +
-    ggtitle(title1)
+    geom_line(color = &quot;blue&quot;) +
+    geom_hline(yintercept = e_v, linetype = &quot;dashed&quot;, color = &quot;red&quot;) +
+    labs(
+      x = &quot;Number of Trials&quot;,
+      y = &quot;Average Value (Sn/n)&quot;,
+      title = title1,
+      subtitle = sprintf(&quot;Last 100000 trials average: %.2f&quot;, e_v)
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(size = 14, face = &quot;bold&quot;),
+          plot.subtitle = element_text(size = 12),
+          axis.title = element_text(size = 10),
+          axis.text = element_text(size = 8),
+          legend.position = &quot;none&quot;)
   
-  # Devolver la lista de gr?ficos
+  # Devolver la lista de gráficos
   return(c(e_v, list(p1)))
 }</code></pre>
 </div>
@@ -3055,9 +3062,51 @@ graficar_experimento(jugadas_7)</code></pre>
 </div>
 <div id="discusión" class="section level1">
 <h1>Discusión</h1>
+<p>La máquina tragamonedas es una de las máquinas que más ganancias
+generan en un casino, ya que ofrecen una tasa de pago muy baja. Al
+analizar los resultados obtenidos, examinemos qué es más conveniente
+para el casino. También vale la pena añadir que, según se dice en el
+documento, estas máquinas son las que menos retribuyen inversión a los
+jugadores. Por lo tanto, según lo graficado, entre menor sea la magnitud
+del expected value, menor será la ganancia de la casa de apuestas. (Esto
+se analiza desde los parámetros establecidos en este proyecto, sin
+embargo, puede escalarse más).</p>
+<p>Como se observó anteriormente, se tienen tres conjuntos de
+probabilidades, de los cuales no hay una gran diferencia en términos de
+ganancia entre ellos. A pesar de tener más probabilidades de llevarse el
+premio mayor, en el valor esperado no son muy distantes los unos de los
+otros. La mayor ganancia que puede llevarse el casino ocurre cuando
+tenemos la misma probabilidad para todas las figuras y con 3 carriles.
+Aunque al principio podría sonar un poco disruptiva esta conclusión, ya
+se observó estadísticamente que esta es la estrategia que más ganancias
+brinda al casino (en nuestro set de probabilidades), dando un retorno al
+jugador de aproximadamente un dólar por cada 5 dólares invertidos, a
+diferencia de cuando había 5 carriles, que daban la menor ganancia, ya
+que por cada 5 dólares invertidos, este retornaba aproximadamente 2
+dólares.</p>
 </div>
 <div id="conclusión" class="section level1">
 <h1>Conclusión</h1>
+<p>Los resultados sugieren que la máquina tragamonedas es una fuente
+considerable de utilidades para los casinos. Este estudio desmitifica
+creencias sobre su funcionamiento mediante herramientas estadísticas y
+la ley de los grandes números. A pesar de mitos que insinúan trucos o
+suerte variable, los datos respaldan la coherencia de los resultados. Se
+debe ampliar la investigación, explorando configuraciones en diversos
+casinos y considerando condiciones adicionales para una comprensión
+completa de las ganancias, incluida la relación entre el número de
+carriles y los patrones de ganancia.</p>
+<p>En el panorama más amplio de los juegos de azar, este análisis no
+solo ofrece una visión de la rentabilidad de las máquinas tragamonedas,
+sino también destaca la importancia de basar percepciones en evidencia
+sólida. Los mitos y suposiciones desaparecen ante el rigor de la
+estadística. Al explorar configuraciones más allá de este estudio y
+considerar diversas variables, obtenemos una comprensión profunda de
+cómo las decisiones de diseño impactan las ganancias. Este enfoque
+basado en datos no solo es crucial para la industria del juego, sino
+también un recordatorio de cómo la investigación objetiva puede
+desentrañar nociones preconcebidas y conducir a una comprensión más
+profunda</p>
 </div>
 <div id="rerefencias" class="section level1">
 <h1>Rerefencias</h1>

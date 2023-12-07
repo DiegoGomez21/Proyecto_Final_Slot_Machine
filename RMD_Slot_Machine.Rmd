@@ -10,13 +10,10 @@ lang: es
 
 # Integrantes
 
-+--------------------------------+---------+
 | Nombre                         | Código  |
-+================================+=========+
+|--------------------------------|---------|
 | Marbin Javier Arévalo Guerrero | 2210053 |
-+--------------------------------+---------+
 | Diego Alejandro Gomez          | 2211060 |
-+--------------------------------+---------+
 
 # Introducción
 
@@ -176,13 +173,25 @@ graficar_experimento <- function(results, title1 = "Average Value: Slot Machine"
   
   # Grafica principal
   p1 = ggplot(data = simu, aes(x = n, y = Sn/n)) +
-    geom_line() +
-    ylab("Average Value (Sn/n)") +
-    ggtitle(title1)
+    geom_line(color = "blue") +
+    geom_hline(yintercept = e_v, linetype = "dashed", color = "red") +
+    labs(
+      x = "Number of Trials",
+      y = "Average Value (Sn/n)",
+      title = title1,
+      subtitle = sprintf("Last 100000 trials average: %.2f", e_v)
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(size = 14, face = "bold"),
+          plot.subtitle = element_text(size = 12),
+          axis.title = element_text(size = 10),
+          axis.text = element_text(size = 8),
+          legend.position = "none")
   
-  # Devolver la lista de gr?ficos
+  # Devolver la lista de gráficos
   return(c(e_v, list(p1)))
 }
+
 ```
 
 # Resultados
@@ -237,7 +246,15 @@ graficar_experimento(jugadas_7)
 
 # Discusión
 
+La máquina tragamonedas es una de las máquinas que más ganancias generan en un casino, ya que ofrecen una tasa de pago muy baja. Al analizar los resultados obtenidos, examinemos qué es más conveniente para el casino. También vale la pena añadir que, según se dice en el documento, estas máquinas son las que menos retribuyen inversión a los jugadores. Por lo tanto, según lo graficado, entre menor sea la magnitud del expected value, menor será la ganancia de la casa de apuestas. (Esto se analiza desde los parámetros establecidos en este proyecto, sin embargo, puede escalarse más).
+
+Como se observó anteriormente, se tienen tres conjuntos de probabilidades, de los cuales no hay una gran diferencia en términos de ganancia entre ellos. A pesar de tener más probabilidades de llevarse el premio mayor, en el valor esperado no son muy distantes los unos de los otros. La mayor ganancia que puede llevarse el casino ocurre cuando tenemos la misma probabilidad para todas las figuras y con 3 carriles. Aunque al principio podría sonar un poco disruptiva esta conclusión, ya se observó estadísticamente que esta es la estrategia que más ganancias brinda al casino (en nuestro set de probabilidades), dando un retorno al jugador de aproximadamente un dólar por cada 5 dólares invertidos, a diferencia de cuando había 5 carriles, que daban la menor ganancia, ya que por cada 5 dólares invertidos, este retornaba aproximadamente 2 dólares.
+
 # Conclusión
+
+Los resultados sugieren que la máquina tragamonedas es una fuente considerable de utilidades para los casinos. Este estudio desmitifica creencias sobre su funcionamiento mediante herramientas estadísticas y la ley de los grandes números. A pesar de mitos que insinúan trucos o suerte variable, los datos respaldan la coherencia de los resultados. Se debe ampliar la investigación, explorando configuraciones en diversos casinos y considerando condiciones adicionales para una comprensión completa de las ganancias, incluida la relación entre el número de carriles y los patrones de ganancia.
+
+En el panorama más amplio de los juegos de azar, este análisis no solo ofrece una visión de la rentabilidad de las máquinas tragamonedas, sino también destaca la importancia de basar percepciones en evidencia sólida. Los mitos y suposiciones desaparecen ante el rigor de la estadística. Al explorar configuraciones más allá de este estudio y considerar diversas variables, obtenemos una comprensión profunda de cómo las decisiones de diseño impactan las ganancias. Este enfoque basado en datos no solo es crucial para la industria del juego, sino también un recordatorio de cómo la investigación objetiva puede desentrañar nociones preconcebidas y conducir a una comprensión más profunda
 
 # Rerefencias
 
